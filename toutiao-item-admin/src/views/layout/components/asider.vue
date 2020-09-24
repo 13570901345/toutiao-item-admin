@@ -6,6 +6,7 @@
     text-color="#fff"
     active-text-color="#ffd04b"
     router
+    :collapse="bbcollapse"
   >
     <el-menu-item index="/">
       <i class="el-icon-house"></i>
@@ -42,9 +43,11 @@
 export default {
   name: "appAsider",
   components: {},
-  props: {},
+  props: ["bbcollapse"],
   data() {
-    return {};
+    return {
+      // iscollapse: false
+    };
   },
   computed: {},
   watch: {},
@@ -57,9 +60,9 @@ export default {
 <style lang="less" scoped>
 .el-asider {
   height: 100%;
-  .iconfont{
-      margin-right: 9px;
-      padding-left: 4px;
+  .iconfont {
+    margin-right: 9px;
+    padding-left: 4px;
   }
 }
 </style>

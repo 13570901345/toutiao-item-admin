@@ -1,12 +1,15 @@
 <template>
   <el-container>
-    <el-aside class="aside" width="20vw">
-      <app-asider />
+    <el-aside class="aside" width="auto">
+      <app-asider :bbcollapse="aacollapse" />
     </el-aside>
     <el-container>
       <el-header class="header">
         <div>
-          <i class="el-icon-s-fold"></i>
+          <i
+            :class="[aacollapse ? 'el-icon-s-unfold' : 'el-icon-s-fold']"
+            @click="aacollapse=!aacollapse"
+          ></i>
           <span>江南皮革厂深圳陈奕迅有限公司</span>
         </div>
         <el-dropdown trigger="click">
@@ -16,8 +19,8 @@
             <i class="el-icon-arrow-down el-icon--right"></i>
           </span>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item icon="el-icon-plus">设置</el-dropdown-item>
-            <el-dropdown-item icon="el-icon-circle-plus">退出</el-dropdown-item>
+            <el-dropdown-item icon="el-icon-s-tools">设置</el-dropdown-item>
+            <el-dropdown-item icon="el-icon-error" @click.native="logout">退出</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </el-header>
@@ -42,7 +45,8 @@ export default {
   props: {},
   data() {
     return {
-        user: {}
+      user: {},
+      aacollapse: false,
     };
   },
   computed: {},
@@ -54,8 +58,21 @@ export default {
   methods: {
     loadgetuser() {
       getuserprofile().then((res) => {
-        this.user = res.data.data
+        this.user = res.data.data;
+      });
+    },
+    logout() {
+      this.$confirm("确定退出吗？", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
       })
+        .then(() => {
+          window.localStorage.removeItem("user");
+          this.$router.push("/login");
+        })
+        .catch(() => {
+        });
     },
   },
 };
@@ -67,7 +84,6 @@ export default {
 }
 .aside {
   background-color: #d3dce6;
-  height: 100vh;
 }
 .header {
   display: flex;

@@ -71,7 +71,7 @@ export default {
       //验证通过，提交登录
       login(this.user)
         .then((res) => {
-          console.log(res);
+        //   console.log(res);
           //登录成功
           this.$message({
             message: "恭喜你，登录成功！",
@@ -79,6 +79,12 @@ export default {
           });
           //关闭登录加载
           this.loginLoad = false;
+
+
+          // 把用户信息存储到本地上
+          window.localStorage.setItem('user',JSON.stringify(res.data.data))
+
+          //进行路由跳转
           this.$router.push({
               name: 'home'
           })
