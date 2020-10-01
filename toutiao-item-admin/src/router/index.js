@@ -8,6 +8,12 @@ import home from "@/views/home";
 import layout from "@/views/layout";
 //导入文章页
 import article from "@/views/article"
+//导入发布文章页
+import publish from "@/views/publish"
+//导入素材页面
+import image from "@/views/image"
+//导入评论页面
+import comment from "@/views/comment"
 
 Vue.use(VueRouter);
 // 路由配置表
@@ -32,6 +38,21 @@ const routes = [
         path: "article",
         name: "article",
         component: article
+      },
+      {
+        path: "publish",
+        name: "publish",
+        component: publish
+      },
+      {
+        path: "image",
+        name: "image",
+        component: image
+      },
+      {
+        path: "comment",
+        name: "comment",
+        component: comment
       }
     ]
   }

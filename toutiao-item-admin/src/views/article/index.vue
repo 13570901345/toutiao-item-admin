@@ -12,34 +12,43 @@
         <!-- 面包屑导航结束 -->
       </div>
       <!-- 数据筛选表单开始 -->
-      <el-form ref="form" :model="form" label-width="80px">
+      <el-form ref="form" :model="form" label-width="80px" v-loading="loading">
         <el-form-item label="状态">
-          <el-radio-group v-model="form.resource">
-            <el-radio label="全部"></el-radio>
-            <el-radio label="草稿"></el-radio>
-            <el-radio label="待审核"></el-radio>
-            <el-radio label="审核通过"></el-radio>
-            <el-radio label="审核失败"></el-radio>
-            <el-radio label="已删除"></el-radio>
+          <el-radio-group v-model="status">
+            <el-radio :label="null">全部</el-radio>
+            <el-radio :label="0">草稿</el-radio>
+            <el-radio :label="1">待审核</el-radio>
+            <el-radio :label="2">审核通过</el-radio>
+            <el-radio :label="3">审核失败</el-radio>
+            <el-radio :label="4">已删除</el-radio>
           </el-radio-group>
         </el-form-item>
 
         <el-form-item label="频道">
-          <el-select v-model="form.region" placeholder="请选择">
-            <el-option label="区域一" value="shanghai"></el-option>
+          <el-select v-model="channelid" placeholder="请选择频道">
+            <el-option label="全部" :value="null"></el-option>
+            <el-option
+              :label="channel.name"
+              :value="channel.id"
+              v-for="(channel,index) in channels"
+              :key="index"
+            ></el-option>
           </el-select>
         </el-form-item>
+
         <el-form-item label="日期">
           <el-date-picker
-            v-model="form.date"
+            v-model="rangdate"
             type="datetimerange"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
             :default-time="['12:00:00']"
+            value-format="yyyy-MM-dd"
+            format="yyyy-MM-dd"
           ></el-date-picker>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onSubmit">查询</el-button>
+          <el-button type="primary" @click="getmethodarticle(1)" :disabled="loading">查询</el-button>
         </el-form-item>
       </el-form>
       <!-- 数据筛选表单结束 -->
@@ -47,10 +56,28 @@
 
     <el-card class="box-card">
       <div slot="header" class="clearfix">
-        根据筛选条件共查询到4545条结果：
+        根据筛选条件共查询到{{ articletount }}条结果：
         <!-- 数据展示表单 -->
-        <el-table :data="articledata" border style="width: 100%" class="table-box">
-          <el-table-column prop label="封面"></el-table-column>
+        <el-table
+          v-loading="loading"
+          :data="articledata"
+          border
+          style="width: 100%"
+          class="table-box"
+        >
+          <el-table-column label="封面">
+            <template slot-scope="scope">
+              <div class="block">
+                <el-image lazy :src="scope.row.cover.images[0]">
+                  <div slot="error" class="image-slot">
+                    <el-image></el-image>
+                  </div>
+                </el-image>
+              </div>
+              <!-- <img v-if="scope.row.cover.images[0]" :src="scope.row.cover.images[0]" class="img-article">
+              <img v-else src="./pic_bg.png" class="img-article">-->
+            </template>
+          </el-table-column>
           <el-table-column prop="title" label="标题"></el-table-column>
           <el-table-column label="状态">
             <!-- slot-scope的意思是能够获取到内部到数据下面有row/column/$index/store等 -->
@@ -64,15 +91,25 @@
           </el-table-column>
           <el-table-column prop="pubdate" label="发布时间"></el-table-column>
           <el-table-column label="操作">
-            <template>
-              <el-button icon="el-icon-edit" circle></el-button>
-              <el-button icon="el-icon-delete" circle></el-button>
+            <template slot-scope="scope">
+              <el-button icon="el-icon-edit" circle @click="$router.push('/publish?id=' + scope.row.id)"></el-button>
+              <el-button icon="el-icon-delete" @click="ondeleteicon(scope.row.id)" circle></el-button>
             </template>
           </el-table-column>
         </el-table>
         <!-- /数据展示表单 -->
         <!-- 分页组件 -->
-        <el-pagination class="page-compentend" background layout="prev, pager, next" :total="1000"></el-pagination>
+        <!-- page-size表示每页的数据条数 current-change表示跳转页面的事件 total表示总数据条数 -->
+        <el-pagination
+          class="page-compentend"
+          :page-size="pagesize"
+          @current-change="oncurrentchange"
+          background
+          layout="prev, pager, next"
+          :total="articletount"
+          :disabled="loading"
+          :current-page.sync="page"
+        ></el-pagination>
         <!-- /分页组件 -->
       </div>
     </el-card>
@@ -80,7 +117,7 @@
 </template>
 
 <script>
-import { getarticle } from "@/api/article";
+import { getarticle, getarticlemouth, detalearticle } from "@/api/article";
 export default {
   name: "articlecontainer",
   components: {},
@@ -96,46 +133,70 @@ export default {
         resource: "",
         desc: "",
       },
-      tableData: [
-        {
-          date: "2016-05-02",
-          name: "王小虎",
-          address: "上海市普陀区金沙江路 1518 弄",
-        },
-        {
-          date: "2016-05-04",
-          name: "王小虎",
-          address: "上海市普陀区金沙江路 1517 弄",
-        },
-        {
-          date: "2016-05-01",
-          name: "王小虎",
-          address: "上海市普陀区金沙江路 1519 弄",
-        },
-        {
-          date: "2016-05-03",
-          name: "王小虎",
-          address: "上海市普陀区金沙江路 1516 弄",
-        },
-      ],
-      articledata: [],
+      articledata: [], //总的传递过来的数据
+      articletount: 0, //总数据条数
+      pagesize: 15, //每个页面的数据条数
+      status: null, //数据筛选的状态，如全部或已审核
+      channels: [], //文章数据频道的数据总和
+      channelid: null, // 文章频道具体的ID
+      rangdate: null, //日期起始
+      loading: true, //加载动画开启
+      page: 1 //这是当前页码
     };
   },
   computed: {},
   watch: {},
   created() {
-    this.getmethodarticle();
+    this.getmethodarticle(1);
+    this.ongetarticlemouth();
   },
   mounted() {},
   methods: {
     onSubmit() {
       console.log("submit!");
     },
-    getmethodarticle() {
-      getarticle().then((res) => {
-        console.log(res);
+    getmethodarticle(page) {
+      //请求一开始就开启loading
+      this.loading = true;
+      getarticle({
+        page: page,
+        per_page: this.pagesize,
+        status: this.status,
+        channel_id: this.channelid,
+        begin_pubdate: this.rangdate ? this.rangdate[0] : null,
+        end_pubdate: this.rangdate ? this.rangdate[1] : null,
+      }).then((res) => {
+        // console.log(res);
         this.articledata = res.data.data.results;
+        this.articletount = res.data.data.total_count;
+
+        //请求结束时便可以关闭了
+        this.loading = false;
       });
+    },
+    oncurrentchange(page) {
+      this.getmethodarticle(page);
+    },
+    ongetarticlemouth() {
+      getarticlemouth().then((res) => {
+        this.channels = res.data.data.channels;
+      });
+    },
+    ondeleteicon(id) {
+      this.$confirm("确定删除吗？", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          //调用删除接口
+          //应为传递过来的id太长，用来json-bigint来转化来，所以后面要加个tostring来拿到完整的id
+          detalearticle(id.toString()).then((res) => {
+              //当上面那行代码传递给数据库删除来代码后下面那行就进行更新当前页数据
+            this.getmethodarticle(this.page)
+          });
+        })
+        .catch(() => {});
     },
   },
 };
@@ -149,6 +210,10 @@ export default {
   margin: 15px 0;
 }
 .page-compentend {
-  margin-left: 180px;
+  margin-left: 23vw;
+}
+.cell .block {
+  text-align: center;
+  margin-top: 13px;
 }
 </style>
