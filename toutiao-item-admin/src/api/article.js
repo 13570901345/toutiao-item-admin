@@ -62,3 +62,16 @@ export const getfindarticle = id => {
         url: `/mp/v1_0/articles/${id}`,
     })
 }
+//修改评论状态
+export const updatacommend = (articleid,dram) => {
+    return request({
+        method: 'put',
+        url: '/mp/v1_0/comments/status',
+        params: {
+            article_id:articleid
+        },
+        data: {
+            allow_comment: dram
+        }
+    })
+}

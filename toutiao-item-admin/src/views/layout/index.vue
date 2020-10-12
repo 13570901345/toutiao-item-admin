@@ -8,19 +8,21 @@
         <div>
           <i
             :class="[aacollapse ? 'el-icon-s-unfold' : 'el-icon-s-fold']"
-            @click="aacollapse=!aacollapse"
+            @click="aacollapse = !aacollapse"
           ></i>
           <span>江南皮革厂深圳陈奕迅有限公司</span>
         </div>
         <el-dropdown trigger="click">
           <span class="el-dropdown-link">
             <img :src="user.photo" alt />
-            <span>{{user.name}}</span>
+            <span>{{ user.name }}</span>
             <i class="el-icon-arrow-down el-icon--right"></i>
           </span>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item icon="el-icon-s-tools">设置</el-dropdown-item>
-            <el-dropdown-item icon="el-icon-error" @click.native="logout">退出</el-dropdown-item>
+            <el-dropdown-item icon="el-icon-error" @click.native="logout"
+              >退出</el-dropdown-item
+            >
           </el-dropdown-menu>
         </el-dropdown>
       </el-header>
@@ -37,6 +39,9 @@
 import appAsider from "./components/asider";
 // 添加api接口对调用
 import { getuserprofile } from "@/api/user";
+
+import globalbus from "@/utils/global-bus";
+
 export default {
   name: "layout",
   components: {
@@ -53,6 +58,10 @@ export default {
   watch: {},
   created() {
     this.loadgetuser();
+    globalbus.$on("hxk", (data) => {
+      this.user.name = data.name
+      this.user.photo = data.photo
+    });
   },
   mounted() {},
   methods: {
@@ -71,8 +80,7 @@ export default {
           window.localStorage.removeItem("user");
           this.$router.push("/login");
         })
-        .catch(() => {
-        });
+        .catch(() => {});
     },
   },
 };

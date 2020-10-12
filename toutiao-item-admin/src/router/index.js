@@ -14,6 +14,10 @@ import publish from "@/views/publish"
 import image from "@/views/image"
 //导入评论页面
 import comment from "@/views/comment"
+//导入个人设置页面
+import setting from "@/views/setting"
+//导入粉丝管理页面
+import fans from "@/views/fans"
 
 Vue.use(VueRouter);
 // 路由配置表
@@ -53,6 +57,16 @@ const routes = [
         path: "comment",
         name: "comment",
         component: comment
+      },
+      {
+        path: "setting",
+        name: "setting",
+        component: setting
+      },
+      {
+        path: "fans",
+        name: "fans",
+        component: fans
       }
     ]
   }

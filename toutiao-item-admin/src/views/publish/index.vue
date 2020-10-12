@@ -39,6 +39,11 @@
             <el-radio :label="0">无图</el-radio>
             <el-radio :label="-1">自动</el-radio>
           </el-radio-group>
+          <template v-if="article.cover.type>0">
+            <updataform v-for="(cover,index) in article.cover.type" :key="index" 
+            @coverchange='oncoverchange(index,$event)' 
+            :coverimage='article.cover.images[index]' />
+          </template>
         </el-form-item>
 
         <el-form-item label="频道" prop="channel_id">
@@ -70,6 +75,7 @@ import {
   putarticle,
   getfindarticle,
 } from "@/api/article";
+import updataform from "./compentends/updata-form";
 import {
   ElementTiptap,
   // 需要的 extensions
@@ -98,6 +104,7 @@ export default {
   name: "publishindex",
   components: {
     "el-tiptap": ElementTiptap,
+    updataform,
   },
   props: {},
   data() {
@@ -164,7 +171,7 @@ export default {
               }
             },
           },
-          { required: true, message: "请输入内容", trigger: "blur" }
+          { required: true, message: "请输入内容", trigger: "blur" },
         ],
         channel_id: [{ required: true, message: "请选择所属频道" }],
       },
@@ -182,9 +189,9 @@ export default {
   mounted() {},
   methods: {
     onSubmit(draft = false) {
-      //进行发布之前的验证操作 
+      //进行发布之前的验证操作
       this.$refs["publish-from"].validate((valid) => {
-          //如果验证规则不通过，则返回回去
+        //如果验证规则不通过，则返回回去
         if (!valid) {
           return;
         }
@@ -220,6 +227,9 @@ export default {
         this.article = res.data.data;
       });
     },
+    oncoverchange(index,url) {
+      this.article.cover.images[index] = url
+    }
   },
 };
 </script>

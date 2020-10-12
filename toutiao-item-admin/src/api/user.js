@@ -25,4 +25,29 @@ export const getuserprofile = () => {
   })
 }
 
-//修改用户信息
+//修改用户头像
+export const getuserphoto = data => {
+    return request({
+      method: "PATCH",
+      url: "/mp/v1_0/user/photo",
+      // 对请求头信息添加身份令牌
+      // headers: {
+      //   Authorization:  
+      // }
+      data
+    })
+  }
+  
+//编辑用户信息
+export const updatauser = data => {
+  return request({
+    method: "PATCH",
+    url: "/mp/v1_0/user/profile",
+    // 对请求头信息添加身份令牌
+    // headers: {
+    //   Authorization:  
+    // }
+    data
+  })
+}
+
